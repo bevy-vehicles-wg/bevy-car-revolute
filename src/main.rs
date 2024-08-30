@@ -242,14 +242,18 @@ fn setup_car(
         // using ball collider only
         // TODO: we want to rotate the wheel collider 90 degree at z axis first
         // before spawning the entity
-        let wheel_co = Collider::ball(wheel_radius);
+        let wheel_co = Collider::cylinder(wheel_thickness, wheel_radius);
         // The only way to orient the mesh is rotating the mesh prior to spawning
         let mut wheel_mesh: Mesh = Cylinder {
             half_height: wheel_thickness,
             radius: wheel_radius,
         }
         .into();
-        wheel_mesh.rotate_by(Quat::from_rotation_z(FRAC_PI_2));
+
+        // work around to orient the collider to rotate 90 degree on the Z axis
+        // https://github.com/dimforge/bevy_rapier/issues/569#issuecomment-2246429119
+        let mut revolute = RevoluteJointBuilder::new(Vec3::X).build();
+        revolute.data.set_local_basis2(Quat::from_rotation_z(FRAC_PI_2));
 
         let wheel_entity = commands
             .spawn((
@@ -261,7 +265,6 @@ fn setup_car(
                         materials.add(Color::Srgba(RED))
                     },
                     transform: Transform {
-                        rotation: Quat::from_rotation_z(FRAC_PI_2),
                         translation: wheel_center,
                         ..default()
                     },
@@ -272,7 +275,7 @@ fn setup_car(
                 // anymore
                 Sleeping::disabled(),
                 physics::rigid_body_dynamic(),
-                ImpulseJoint::new(axle_entity, RevoluteJointBuilder::new(Vec3::X)),
+                ImpulseJoint::new(axle_entity, revolute),
                 Friction::new(1.0),
                 physics::mass(20.0),
             ))
@@ -282,7 +285,6 @@ fn setup_car(
             commands.entity(wheel_entity).insert(DrivingWheel);
             commands.entity(axle_entity).insert(SteeringAxle);
         }
-
     }
 }
 
@@ -320,7 +322,7 @@ fn update_driving_wheel(
 ) {
     let mut thrust = 0.0;
     let boost = 1.0;
-    let drive_strength = 100.0;
+    let drive_strength = 1.0;
     let max_steering_angle = 35.0f32.to_radians();
     let mut steering = 0.0;
 
