@@ -170,6 +170,7 @@ fn setup_car(
                 ..default()
             },
             physics::rigid_body_dynamic(),
+            physics::mass(2_000.0),
             car_collider,
             Car {
                 width: car_width,
@@ -273,6 +274,7 @@ fn setup_car(
                 physics::rigid_body_dynamic(),
                 ImpulseJoint::new(axle_entity, RevoluteJointBuilder::new(Vec3::X)),
                 Friction::new(1.0),
+                physics::mass(20.0),
             ))
             .id();
 
