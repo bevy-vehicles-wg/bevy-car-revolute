@@ -344,9 +344,11 @@ fn movements(
     }
 
     if keys.pressed(KeyCode::KeyA) {
+        println!("steer left");
         movement_writer.send(Movement::SteerLeft);
     }
     if keys.pressed(KeyCode::KeyD) {
+        println!("steer right");
         movement_writer.send(Movement::SteerRight);
     }
 }
@@ -387,7 +389,6 @@ fn update_driving_wheel(
 
     // ISSUE: it is not really rotating the axle, instead the body is rotated in a weird way
     for (i, (axle_transform, mut impulse_joint)) in steering_axle.iter_mut().enumerate() {
-        println!("steering right: {i}");
         impulse_joint.data.as_mut().set_motor_position(
             JointAxis::AngY,
             max_steering_angle * steering,
