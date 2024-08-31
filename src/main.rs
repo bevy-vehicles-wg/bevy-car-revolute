@@ -92,6 +92,7 @@ fn setup_car(
             },
             ..default()
         },
+        physics::rigid_body_fixed(),
         ground_collider,
         //Friction::new(1.0),
     ));
@@ -116,6 +117,7 @@ fn setup_car(
             ..default()
         },
         //Friction::new(1.0),
+        physics::rigid_body_fixed(),
         obstacle_collider,
     ));
 
@@ -253,7 +255,9 @@ fn setup_car(
         // work around to orient the collider to rotate 90 degree on the Z axis
         // https://github.com/dimforge/bevy_rapier/issues/569#issuecomment-2246429119
         let mut revolute = RevoluteJointBuilder::new(Vec3::X).build();
-        revolute.data.set_local_basis2(Quat::from_rotation_z(FRAC_PI_2));
+        revolute
+            .data
+            .set_local_basis2(Quat::from_rotation_z(FRAC_PI_2));
 
         let wheel_entity = commands
             .spawn((
@@ -284,6 +288,44 @@ fn setup_car(
         if is_front {
             commands.entity(wheel_entity).insert(DrivingWheel);
             commands.entity(axle_entity).insert(SteeringAxle);
+        }
+    }
+
+    // some dynamic obstacle
+    let num = 16;
+    let rad = 0.1;
+
+    let shift = rad * 2.0;
+    let centerx = shift * (num / 2) as f32;
+    let centery = rad;
+
+    let cube = Cuboid::new(rad * 2.0, rad * 2.0, rad * 2.0);
+    let cube_collider = Collider::cuboid(rad, rad, rad);
+    let cube_color = materials.add(Color::Srgba(PURPLE));
+    let cube_handle = meshes.add(cube);
+
+    for j in 0usize..1 {
+        for k in 0usize..4 {
+            for i in 0..num {
+                let x = i as f32 * shift - centerx;
+                let y = j as f32 * shift + centery;
+                let z = k as f32 * shift + centerx;
+                let loc = vec3(x, y, z);
+                commands.spawn((
+                    PbrBundle {
+                        mesh: cube_handle.clone(),
+                        material: cube_color.clone(),
+                        transform: Transform {
+                            translation: loc,
+                            ..default()
+                        },
+                        ..default()
+                    },
+                    physics::rigid_body_dynamic(),
+                    cube_collider.clone(),
+                ));
+
+            }
         }
     }
 }
