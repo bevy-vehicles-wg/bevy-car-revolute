@@ -279,13 +279,14 @@ pub fn generic_impulse_joint(
     object: Entity,
     loc: Vec3,
     locked_axes: JointAxesMask,
-    limits: (JointAxis, [f32; 2])
+    limits: (JointAxis, [f32; 2]),
 ) {
     #[cfg(feature = "bevy_rapier3d")]
     commands.entity(object).with_children(|children| {
         let generic_joint = GenericJointBuilder::new(locked_axes)
             .limits(limits.0, limits.1)
-            .local_anchor1(loc).build();
+            .local_anchor1(loc)
+            .build();
         children.spawn(ImpulseJoint::new(
             parent,
             TypedJoint::GenericJoint(generic_joint),

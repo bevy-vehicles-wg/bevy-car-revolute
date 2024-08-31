@@ -324,7 +324,6 @@ fn setup_car(
                     physics::rigid_body_dynamic(),
                     cube_collider.clone(),
                 ));
-
             }
         }
     }
