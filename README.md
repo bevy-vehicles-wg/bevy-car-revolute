@@ -26,3 +26,6 @@ D - steer right
 R - Reset camera view
 
 - Hold [Right Click] to move the camera
+
+## LICENSE
+ MIT
